@@ -12,8 +12,7 @@ FROM nvcr.io/nvidia/pytorch:23.01-py3
 
 # Install Python dependencies
 RUN pip install --upgrade pip
-RUN pip install nemo-toolkit flask pynini
-RUN pip install nemo_text_processing
+RUN pip install nemo_text_processing flask pynini
 
 # Copy the NeMo API script into the container
 COPY nemo_api.py /app/nemo_api.py
