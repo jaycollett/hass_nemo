@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 RUN pip install --upgrade pip
-RUN pip install nemo-toolkit pynini
+RUN pip install nemo-toolkit flask pynini
+RUN pip install nemo_text_processing
 
 # Copy the NeMo API script into the container
 COPY nemo_api.py /app/nemo_api.py
