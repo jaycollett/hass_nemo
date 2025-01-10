@@ -7,7 +7,7 @@ I built this Docker image to run the NVidia Nemo Framework. This framework has a
 **Docker CLI:**
 
     docker run --gpus all -dit \
-       -p 5002:5002 \
+       -p 5000:5000 \
        --ipc=host --ulimit memlock=-1 \
        --ulimit stack=67108864 \
        ghcr.io/jaycollett/hass_nemo:latest
