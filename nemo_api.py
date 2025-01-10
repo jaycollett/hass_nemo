@@ -33,7 +33,7 @@ def normalize_text():
         # Normalize text in chunks
         normalized_chunks = []
         for chunk in split_into_chunks(text, word_limit=500):
-            normalized_chunk = normalizer.normalize(chunk, verbose=False, punct_post_process=True)
+            normalized_chunk = normalizer.normalize(chunk, verbose=False, punct_post_process=True, punct_pre_process=True)
             normalized_chunks.append(normalized_chunk)
 
         # Concatenate the normalized chunks with proper spacing
