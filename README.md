@@ -29,6 +29,7 @@ I built this Docker image to run the NVidia NeMo Framework. This framework has a
       headers:
         Content-Type: application/json
       payload: '{"text": "{{ text | replace("\n", " ") | replace("\"", "\\\"") }}"}'
+      timeout: 5 # Timeout in seconds
 
 **Use the rest command in a script (portion of a script below):**
 
