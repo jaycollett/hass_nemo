@@ -20,7 +20,7 @@ I built this Docker image to run the NVidia Nemo Framework. This framework has a
 **Example rest command (ensure rest commands are enabled in HA):**
 
     normalize_text:
-      url: "http://192.168.0.210:5000/normalize"
+      url: "http://<YOUR API IP HERE>:5000/normalize"
       method: POST
       headers:
         Content-Type: application/json
