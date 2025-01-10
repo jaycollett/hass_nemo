@@ -1,7 +1,11 @@
 
   
-
 # hass_nemo
+[![s.io/github/v/GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/jaycollett/hass_nemo?include_prereleases)](https://img.shields.io/github/v/release/jaycollett/hass_nemo?include_prereleases)
+[![GitHub last commit](https://img.shields.io/github/last-commit/jaycollett/hass_nemo)](https://img.shields.io/github/last-commit/jaycollett/hass_nemo)
+[![GitHub issues](https://img.shields.io/github/issues-raw/jaycollett/hass_nemo)](https://img.shields.io/github/issues-raw/jaycollett/hass_nemo)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/jaycollett/hass_nemo)](https://img.shields.io/github/issues-pr/jaycollett/hass_nemo)
+[![GitHub](https://img.shields.io/github/license/jaycollett/hass_nemo)](https://img.shields.io/github/license/jaycollett/hass_nemo)
 
   
 
