@@ -9,7 +9,7 @@
 
   
 
-I built this Docker image to run the NVidia Nemo Framework. This framework has all sorts of intresting features, but I'm explicitly intrested in the TN (Text Normalization) feature which I plan to use with Home Assistant and my Piper TTS integration as part of my text pre-processings pipeline. The image is rather large but runs incredibly fast with NVidia GPU support (or without GPUs).
+I built this Docker image to run the NVidia NeMo Framework. This framework has all sorts of interesting features, but I'm explicitly interested in the TN (Text Normalization) feature, which I plan to use with Home Assistant and my Piper TTS integration as part of my text pre-processing pipeline. The image is large but runs incredibly fast with NVidia GPU support (or without GPUs).
 
   
 
@@ -32,13 +32,13 @@ I built this Docker image to run the NVidia Nemo Framework. This framework has a
 
 **Use the rest command in a script (portion of a script below):**
 
-      # Step 2: Call the API and process response
+      # Step 2: Call the API and process the response
       - action: rest_command.normalize_text
         response_variable: normalized_response
         data:
           text: "{{ message }}"
     
-      # Step 3: Check if API response was successful
+      # Step 3: Check if the API response was successful
       - if: "{{ normalized_response['status'] == 200 }}"
         then:
           # Step 4: Log the normalized text
