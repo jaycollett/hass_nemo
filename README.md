@@ -31,7 +31,7 @@ I built this Docker image to run the NVidia NeMo Framework. This framework has a
       payload: '{"text": "{{ text | replace("\n", " ") | replace("\"", "\\\"") }}"}'
       timeout: 5 # Timeout in seconds
 
-**Use the rest command in an automation (portion of a automation below):**
+**Use the rest command in an automation (portion of an automation below):**
 
       # Step 2: Call the API and process the response
       - action: rest_command.normalize_text
