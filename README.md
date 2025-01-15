@@ -1,4 +1,5 @@
 
+
   
 # hass_nemo
 [![s.io/github/v/GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/jaycollett/hass_nemo?include_prereleases)](https://img.shields.io/github/v/release/jaycollett/hass_nemo?include_prereleases)
@@ -17,9 +18,20 @@ I built this Docker image to run the NVidia NeMo Framework. This framework has a
 
     docker run --gpus all -dit \
     -p 5000:5000 \
+    -e LANG_TO_USE=it \
     --ipc=host --ulimit memlock=-1 \
     --ulimit stack=67108864 \
     ghcr.io/jaycollett/hass_nemo:latest
+
+
+**Docker environment varible options ( -e ):**
+| Varible Name    | Description of use |
+| -------- | ------- |
+| LANG_TO_USE  | Language to leverage for TN. Refer to the [Nemo documentation](https://docs.nvidia.com/nemo-framework/user-guide/latest/nemotoolkit/nlp/text_normalization/wfst/wfst_text_normalization.html) for supported langauges. *(Default: en)*  |
+| INPUT_CASE | Accept either "lower_cased" or "cased" input. *(Default: cased)*     |
+| PUNCT_POST_PROCESS    | Whether to normalize punctuation for post-processing. *(Default: True)*    |
+| PUNCT_PRE_PROCESS    | Whether to normalize punctuation for pre-processing. *(Default: True)*    |
+| VERBOSE_LOGGING    | More verbose output for normalize function. *(Default: False)*    |
 
 **Example rest command (ensure rest commands are enabled in HA):**
 

@@ -1,11 +1,19 @@
 from flask import Flask, request, jsonify
 from nemo_text_processing.text_normalization.normalize import Normalizer
 import logging
+import os
 
 app = Flask(__name__)
 
+# Read environment vars with defaults
+LANG_TO_USE = os.getenv("LANG_TO_USE", "en")
+INPUT_CASE = os.getenv("INPUT_CASE", "cased")
+PUNCT_POST_PROCESS = os.getenv("PUNCT_POST_PROCESS", "True")
+PUNCT_PRE_PROCESS = os.getenv("PUNCT_PRE_PROCESS", "True")
+VERBOSE_LOGGING = os.getenv("VERBOSE_LOGGING", "False")
+
 # Initialize NeMo Normalizer
-normalizer = Normalizer(input_case='cased', lang='en')
+normalizer = Normalizer(input_case=INPUT_CASE, lang=LANG_TO_USE)
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -33,7 +41,7 @@ def normalize_text():
         # Normalize text in chunks
         normalized_chunks = []
         for chunk in split_into_chunks(text, word_limit=500):
-            normalized_chunk = normalizer.normalize(chunk, verbose=False, punct_post_process=True, punct_pre_process=True)
+            normalized_chunk = normalizer.normalize(chunk, verbose=VERBOSE_LOGGING, punct_post_process=PUNCT_POST_PROCESS, punct_pre_process=PUNCT_PRE_PROCESS)
             normalized_chunks.append(normalized_chunk)
 
         # Concatenate the normalized chunks with proper spacing
