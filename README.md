@@ -27,7 +27,7 @@ I built this Docker image to run the NVidia NeMo Framework. This framework has a
 **Docker environment varible options ( -e ):**
 | Varible Name    | Description of use |
 | -------- | ------- |
-| LANG_TO_USE  | Language to leverage for TN. Refer to the [Nemo documentation](https://docs.nvidia.com/nemo-framework/user-guide/latest/nemotoolkit/nlp/text_normalization/wfst/wfst_text_normalization.html) for supported langauges. *(Default: en)*  |
+| LANG_TO_USE  | Language to leverage for TN. Refer to the [Nemo documentation](https://docs.nvidia.com/nemo-framework/user-guide/latest/nemotoolkit/nlp/text_normalization/wfst/wfst_text_normalization.html#language-support-matrix) for supported langauges. *(Default: en)*  |
 | INPUT_CASE | Accept either "lower_cased" or "cased" input. *(Default: cased)*     |
 | PUNCT_POST_PROCESS    | Whether to normalize punctuation for post-processing. *(Default: True)*    |
 | PUNCT_PRE_PROCESS    | Whether to normalize punctuation for pre-processing. *(Default: True)*    |
