@@ -10,6 +10,8 @@ A small Docker image that wraps the [NVIDIA NeMo text processing](https://github
 
 NeMo's WFST text normalization runs entirely on CPU (pynini/OpenFST), so no GPU is required. Long input is automatically split on sentence boundaries (NVIDIA's recommended approach) to avoid the performance blowup NeMo hits on long single strings.
 
+A user-editable [preprocessing layer](#preprocessing-rules) rewrites text with your own regex rules *before* NeMo sees it - for example turning a bare `72F` into `72°F` so it's spoken as "seventy two degrees Fahrenheit". Rules live in a simple JSON file you can mount into the container; no rebuild and no Python required.
+
 **Docker CLI:**
 
     docker run -dit \
@@ -30,13 +32,82 @@ The `/cache` volume is optional but recommended: NeMo builds its grammar files o
 | PUNCT_PRE_PROCESS | Whether to normalize punctuation for pre-processing. *(Default: True)* |
 | VERBOSE_LOGGING | More verbose output for the normalize function. *(Default: False)* |
 | CACHE_DIR | Directory for NeMo's compiled grammar cache. Mount a volume here for fast restarts. *(Default: /cache)* |
+| PREPROCESS_ENABLED | Master on/off switch for the [preprocessing rules](#preprocessing-rules) layer. *(Default: True)* |
+| PREPROCESS_RULES_FILE | Path to your own rules file. If it doesn't exist, only the built-in defaults are used (this is normal, not an error). *(Default: /config/preprocess_rules.json)* |
+| PREPROCESS_MERGE_DEFAULTS | When a user rules file is present: `True` = built-in defaults first, then your rules appended; `False` = your file fully replaces the defaults. *(Default: True)* |
 
 **Endpoints:**
 
 | Endpoint | Method | Description |
 | -------- | ------- | ------- |
 | /normalize | POST | Body: `{"text": "..."}`. Returns `{"normalized_text": "..."}`. |
-| /health | GET | Returns `{"status": "ok"}` once the normalizer is loaded and serving. |
+| /health | GET | Returns `{"status": "ok", "lang": "en"}` once the normalizer is loaded and serving (used by the Docker healthcheck). |
+| /rules | GET | Returns the active (enabled, valid) [preprocessing rules](#preprocessing-rules) as JSON so you can confirm what's live. |
+
+## Preprocessing rules
+
+NeMo only expands a temperature when the degree symbol is present: `72°F` becomes *"seventy two degrees Fahrenheit"*, but a bare `72F` becomes the unhelpful *"seventy two F"*. The preprocessing layer rewrites text with user-editable **regex rules** *before* it reaches NeMo. The built-in default rule inserts a `°` before a bare C/F that follows a number, so `72F` -> `72°F` -> *"seventy two degrees Fahrenheit"*.
+
+Rules are a simple ordered list in a JSON file - **no image rebuild and no Python editing required**. Each rule is applied top-to-bottom, so ordering matters. The design scales cleanly to dozens of rules: just add more entries.
+
+**How it works:**
+
+- The image ships with built-in defaults (currently just the temperature rule).
+- Mount your own `preprocess_rules.json` at `/config/preprocess_rules.json` to add or override rules.
+- By default your rules are **appended after** the defaults (`PREPROCESS_MERGE_DEFAULTS=True`). Set it to `False` to replace the defaults entirely.
+- A rule with an **invalid regex or a malformed entry is logged and skipped** - it never crashes the server or a request. A missing user file is normal and simply falls back to the defaults.
+- `GET /rules` returns exactly what's live, in order.
+
+**Rule schema:**
+
+| Field | Required | Description |
+| -------- | ------- | ------- |
+| `name` | no | Human-friendly label (shown in `/rules` and logs). |
+| `description` | no | What the rule does and why. For your future self. |
+| `pattern` | yes | A Python regex. Remember to escape backslashes in JSON (`\\d`, `\\w`). |
+| `replacement` | yes | Replacement string using Python `re.sub` backreference syntax (`\\1`, `\\2`). |
+| `enabled` | no | `true`/`false`. Omit to default to `true`. |
+
+**Mount a custom rules file:**
+
+    docker run -dit \
+    -p 5000:5000 \
+    -e LANG_TO_USE=en \
+    -v nemo_cache:/cache \
+    -v $(pwd)/preprocess_rules.json:/config/preprocess_rules.json \
+    ghcr.io/jaycollett/hass_nemo:latest
+
+**Sample `preprocess_rules.json`** (also in the repo as [`preprocess_rules.example.json`](preprocess_rules.example.json)):
+
+```json
+{
+  "rules": [
+    {
+      "name": "temperature-degree-symbol",
+      "description": "Insert ° before a bare C/F following a number so NeMo expands it (72F -> 72°F -> 'seventy two degrees Fahrenheit').",
+      "pattern": "(?<!\\w)(\\d+(?:\\.\\d+)?)\\s?([CF])(?![A-Za-z°])",
+      "replacement": "\\1°\\2",
+      "enabled": true
+    },
+    {
+      "name": "abbrev-with",
+      "description": "Expand the shorthand 'w/' into the spoken word 'with'.",
+      "pattern": "(?<![A-Za-z])w/(?=\\s|$)",
+      "replacement": "with",
+      "enabled": true
+    },
+    {
+      "name": "abbrev-without",
+      "description": "Expand the shorthand 'w/o' into the spoken words 'without'.",
+      "pattern": "(?<![A-Za-z])w/o(?=\\s|$)",
+      "replacement": "without",
+      "enabled": true
+    }
+  ]
+}
+```
+
+> **Note on the temperature rule:** it matches *any* number immediately followed by a bare `C` or `F`, so an apartment label like `4F` in `Apt 4F` becomes `4°F`. In practice the win on real temperatures is worth this rare false positive, but if it bothers you, disable or refine the rule in your own file (it's just regex).
 
 **Example rest command (ensure rest commands are enabled in HA):**
 

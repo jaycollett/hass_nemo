@@ -1,0 +1,25 @@
+{
+  "rules": [
+    {
+      "name": "temperature-degree-symbol",
+      "description": "Insert ° before a bare C/F following a number so NeMo expands it (72F -> 72°F -> 'seventy two degrees Fahrenheit').",
+      "pattern": "(?<!\\w)(\\d+(?:\\.\\d+)?)\\s?([CF])(?![A-Za-z°])",
+      "replacement": "\\1°\\2",
+      "enabled": true
+    },
+    {
+      "name": "abbrev-with",
+      "description": "Expand the shorthand 'w/' into the spoken word 'with'.",
+      "pattern": "(?<![A-Za-z])w/(?=\\s|$)",
+      "replacement": "with",
+      "enabled": true
+    },
+    {
+      "name": "abbrev-without",
+      "description": "Expand the shorthand 'w/o' into the spoken words 'without'.",
+      "pattern": "(?<![A-Za-z])w/o(?=\\s|$)",
+      "replacement": "without",
+      "enabled": true
+    }
+  ]
+}

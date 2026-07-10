@@ -19,7 +19,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ && \
 ENV CACHE_DIR=/cache
 RUN mkdir -p /cache
 
+# /config is where users mount their own preprocess_rules.json (single-file mount).
+RUN mkdir -p /config
+
 COPY nemo_api.py /app/nemo_api.py
+COPY preprocess.py /app/preprocess.py
+COPY default_rules.json /app/default_rules.json
 WORKDIR /app
 
 EXPOSE 5000

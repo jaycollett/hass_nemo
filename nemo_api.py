@@ -5,6 +5,8 @@ import traceback
 from flask import Flask, jsonify, request
 from nemo_text_processing.text_normalization.normalize import Normalizer
 
+from preprocess import build_preprocessor
+
 app = Flask(__name__)
 
 
@@ -21,6 +23,11 @@ PUNCT_PRE_PROCESS = env_bool("PUNCT_PRE_PROCESS", "True")
 VERBOSE_LOGGING = env_bool("VERBOSE_LOGGING", "False")
 CACHE_DIR = os.getenv("CACHE_DIR") or None
 
+# Preprocessing: user-editable regex rules applied to text before NeMo sees it.
+PREPROCESS_ENABLED = env_bool("PREPROCESS_ENABLED", "True")
+PREPROCESS_RULES_FILE = os.getenv("PREPROCESS_RULES_FILE", "/config/preprocess_rules.json")
+PREPROCESS_MERGE_DEFAULTS = env_bool("PREPROCESS_MERGE_DEFAULTS", "True")
+
 # NeMo's WFST normalizer degrades exponentially on long single inputs; keep
 # any one normalize() call under this many words (NeMo's documented limit).
 MAX_WORDS_PER_CHUNK = 500
@@ -31,9 +38,23 @@ logger = logging.getLogger("nemo_api")
 if INPUT_CASE not in ("cased", "lower_cased"):
     logger.warning("INPUT_CASE=%r is not 'cased' or 'lower_cased'; NeMo may reject it", INPUT_CASE)
 
+preprocessor = build_preprocessor(
+    enabled=PREPROCESS_ENABLED,
+    user_file=PREPROCESS_RULES_FILE,
+    merge_defaults=PREPROCESS_MERGE_DEFAULTS,
+)
+
 logger.info("Loading NeMo Normalizer (lang=%s, input_case=%s, cache_dir=%s)...", LANG_TO_USE, INPUT_CASE, CACHE_DIR)
 normalizer = Normalizer(input_case=INPUT_CASE, lang=LANG_TO_USE, cache_dir=CACHE_DIR)
 logger.info("Normalizer ready")
+
+
+def preprocess(text):
+    """Apply the configured preprocessing rules before normalization.
+
+    No-op passthrough when PREPROCESS_ENABLED is false or no rules are active.
+    """
+    return preprocessor.apply(text)
 
 
 def split_long_sentence(sentence, word_limit=MAX_WORDS_PER_CHUNK):
@@ -61,6 +82,15 @@ def health():
     return jsonify({"status": "ok", "lang": LANG_TO_USE})
 
 
+@app.route("/rules", methods=["GET"])
+def rules():
+    """Return the active (enabled, successfully-compiled) preprocessing rules."""
+    return jsonify({
+        "preprocess_enabled": PREPROCESS_ENABLED,
+        "rules": preprocessor.active_rules(),
+    })
+
+
 @app.route("/normalize", methods=["POST"])
 def normalize_text():
     try:
@@ -71,6 +101,8 @@ def normalize_text():
         text = data.get("text", "")
         if not isinstance(text, str) or not text.strip():
             return jsonify({"error": "Invalid input: text must be a non-empty string"}), 400
+
+        text = preprocess(text)
 
         normalized_chunks = []
         for chunk in split_for_normalization(text):

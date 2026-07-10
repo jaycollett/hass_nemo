@@ -1,0 +1,11 @@
+{
+  "rules": [
+    {
+      "name": "temperature-degree-symbol",
+      "description": "Insert ° before a bare C/F following a number so NeMo expands it (72F -> 72°F -> 'seventy two degrees Fahrenheit').",
+      "pattern": "(?<!\\w)(\\d+(?:\\.\\d+)?)\\s?([CF])(?![A-Za-z°])",
+      "replacement": "\\1°\\2",
+      "enabled": true
+    }
+  ]
+}
