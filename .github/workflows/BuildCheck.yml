@@ -1,0 +1,22 @@
+name: Build Check
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  build:
+    name: Verify Docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.8.0
+
+      - name: Build (no push)
+        uses: docker/build-push-action@v6.10.0
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
