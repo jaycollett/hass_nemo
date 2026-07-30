@@ -15,7 +15,7 @@
 # This image is linux/amd64 only, because pynini is.
 
 # ---- Stage 1: build the virtualenv ----
-FROM python:3.13-slim-trixie AS builder
+FROM python:3.14-slim-trixie AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -36,7 +36,7 @@ RUN pip install --no-cache-dir \
     gunicorn==23.0.0
 
 # ---- Stage 2: runtime ----
-FROM python:3.13-slim-trixie
+FROM python:3.14-slim-trixie
 
 # Grammar cache: mount a volume here to skip the slow grammar build on restart.
 ENV CACHE_DIR=/cache \
